@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProjectService.Api.Middlewares;
 using ProjectService.Api.Security;
 using ProjectService.Application;
 using ProjectService.Infrastructure;
@@ -25,6 +26,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -40,5 +43,5 @@ static void MigrateDbToLatestVersion(IApplicationBuilder app)
 {
     using var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
     using var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.MigrateAsync();
+    context.Database.Migrate();
 }

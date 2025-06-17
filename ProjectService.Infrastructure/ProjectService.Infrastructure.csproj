@@ -7,6 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="MassTransit" Version="8.5.0-develop.2309" />
+      <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.0-develop.2309" />
       <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.17" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.17" />
@@ -23,10 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\ProjectService.Application\ProjectService.Application.csproj" />
       <ProjectReference Include="..\ProjectService.Domain\ProjectService.Domain.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Data\Config\" />
+      <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
 </Project>
