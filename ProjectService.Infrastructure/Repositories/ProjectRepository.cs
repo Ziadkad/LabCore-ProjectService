@@ -12,6 +12,11 @@ public class ProjectRepository(AppDbContext dbContext, IUserContext userContext)
     {
         return await DbSet.AnyAsync(u => u.Name == name, cancellationToken);
     }
+    
+    public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.AnyAsync(u => u.Id == id, cancellationToken);
+    }
 
     public async Task<(List<Project> projects, int count)> FindAllAsyncWithFilters(
         string? keyword,
@@ -32,7 +37,7 @@ public class ProjectRepository(AppDbContext dbContext, IUserContext userContext)
         // Keyword filter
         if (!string.IsNullOrWhiteSpace(keyword))
         {
-            query = query.Where(p => p.Name.Contains(keyword) || p.Description.Contains(keyword));
+            query = query.Where(p => p.Name.ToLower().Contains(keyword) || p.Description.ToLower().Contains(keyword));
         }
 
         // Date filters
@@ -93,10 +98,17 @@ public class ProjectRepository(AppDbContext dbContext, IUserContext userContext)
         var projects = await query
             .Skip((pageQuery.Page - 1) * pageQuery.PageSize)
             .Take(pageQuery.PageSize)
+            .OrderByDescending(i => i.StartDate)
             .ToListAsync(cancellationToken);
         
         return (projects, totalCount);
     }
 
 
+    public  async Task<Project?> GetProjectByIdIncludeStudiesAll(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.Include(p=>p.Studies)
+            .ThenInclude(s=>s.TaskItems)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
 }

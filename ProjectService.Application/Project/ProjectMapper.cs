@@ -8,5 +8,7 @@ public class ProjectMapper : Profile
     public ProjectMapper()
     {
         CreateMap<Domain.Project.Project, ProjectDto>();
+        CreateMap<Domain.Project.Project, ProjectWithStudiesDto>();
+
     }
 }

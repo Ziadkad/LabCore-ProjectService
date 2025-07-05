@@ -7,6 +7,7 @@ using ProjectService.Domain.Project;
 using ProjectService.Domain.Study;
 using ProjectService.Domain.StudyResult;
 using ProjectService.Domain.Task;
+using ProjectService.Infrastructure.Data;
 using Shared.Models;
 
 namespace ProjectService.Infrastructure.ExternalServices.BrokerService.Consumers;
@@ -17,7 +18,8 @@ public class DeleteFileConsumer(
     IStudyRepository studyRepository,
     ITaskItemRepository taskItemRepository,
     IStudyResultRepository studyResultRepository,
-    IUnitOfWork unitOfWork
+    IUnitOfWork unitOfWork,
+    AppDbContext dbContext
 ) : IConsumer<FileMessage>
 {
     public async Task Consume(ConsumeContext<FileMessage> context)
@@ -52,7 +54,7 @@ public class DeleteFileConsumer(
         if (fileMessage.Context == FileContext.Task)
         {
             Guid taskId = fileMessage.TaskId ?? throw new BadRequestException("TaskId is null");
-            TaskItem? taskItem = await taskItemRepository.FindAsync(taskId);
+            TaskItem? taskItem = await taskItemRepository.FindTaskItemIncludeAllAsync(taskId,default);
             if (taskItem is null)
             {
                 throw new NotFoundException("Task", taskId);
@@ -87,10 +89,13 @@ public class DeleteFileConsumer(
             studyResult.PathsFiles.Remove(fileMessage.Path);
         }
         
-        var isSaved = await unitOfWork.SaveChangesAsync();
-        if (isSaved <= 0)
+        using (dbContext.TemporarilySkipAudit())
         {
-            throw new InternalServerException();
+            var isSaved = await unitOfWork.SaveChangesAsync();
+            if (isSaved <= 0)
+            {
+                throw new InternalServerException();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ProjectService.Domain.Common;
+using ProjectService.Domain.Task;
 
 namespace ProjectService.Domain.Project;
 
@@ -71,4 +72,17 @@ public class Project : BaseModel
         Researchers = researchers;
     }
     
+    
+    public void UpdateProjectProgressPercentage()
+    {
+        var allTaskItems = Studies.SelectMany(s => s.TaskItems).ToList();
+        if (!allTaskItems.Any())
+        {
+            ProgressPercentage = 0.0f;
+            return;
+        }
+        int completedTasks = allTaskItems.Count(t => t.TaskItemStatus == TaskItemStatus.Completed);
+        float percentage = (completedTasks / (float)allTaskItems.Count) * 100;
+        ProgressPercentage = (float)Math.Round(percentage, 2); 
+    }
 }

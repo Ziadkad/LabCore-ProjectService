@@ -233,10 +233,6 @@ namespace ProjectService.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PredecessorTaskIds")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Resources")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -250,6 +246,9 @@ namespace ProjectService.Infrastructure.Data.Migrations
 
                     b.Property<Guid>("StudyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TaskItemStatus")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -8,7 +8,7 @@ namespace ProjectService.Application.Project.Commands;
 
 public record AddResearchersCommand(Guid ProjectId, List<Guid> ResearcherIds) : IRequest<ProjectDto>;
 
-public class AddResearchersCommandHandler(IProjectRepository projectRepository, IUnitOfWork unitOfWork,IMapper mapper) : IRequestHandler<AddResearchersCommand, ProjectDto>
+public class AddResearchersCommandHandler(IProjectRepository projectRepository, IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext) : IRequestHandler<AddResearchersCommand, ProjectDto>
 {
     public  async Task<ProjectDto> Handle(AddResearchersCommand request, CancellationToken cancellationToken)
     {
@@ -16,6 +16,10 @@ public class AddResearchersCommandHandler(IProjectRepository projectRepository, 
         if (project is null)
         {
             throw new NotFoundException("Project", request.ProjectId);
+        }
+        if (project.ManagerId != userContext.GetCurrentUserId())
+        {
+            throw new ForbiddenException();
         }
         project.AddResearchers(request.ResearcherIds);
         var isSaved = await unitOfWork.SaveChangesAsync(cancellationToken);

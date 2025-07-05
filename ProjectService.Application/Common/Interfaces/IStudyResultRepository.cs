@@ -1,8 +1,7 @@
-﻿using ProjectService.Domain.StudyResult;
-
+﻿
 namespace ProjectService.Application.Common.Interfaces;
 
-public interface IStudyResultRepository : IBaseRepository<StudyResult,Guid>
+public interface IStudyResultRepository : IBaseRepository<Domain.StudyResult.StudyResult,Guid>
 {
-    
+    Task<Domain.StudyResult.StudyResult?> FindStudyResultIncludeAllAsync(Guid id, CancellationToken cancellationToken);
 }

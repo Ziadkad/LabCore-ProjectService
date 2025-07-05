@@ -11,7 +11,7 @@ namespace ProjectService.Api.Controllers;
 
 public class ProjectController : BaseController
 {
-
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProject([FromRoute] Guid id)
     {
@@ -19,6 +19,15 @@ public class ProjectController : BaseController
         return Ok(result);
     }
     
+    [Authorize]
+    [HttpGet("Studies/{id}")]
+    public async Task<IActionResult> GetProjectWithStudies([FromRoute] Guid id)
+    {
+        var result = await Mediator.Send(new GetProjectWithStudiesQuery(id));
+        return Ok(result);
+    }
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllProject(
         [FromQuery] string? keyword,

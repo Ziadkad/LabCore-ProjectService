@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using MediatR;
 using ProjectService.Application.Common.Exceptions;
 using ProjectService.Application.Common.Interfaces;
@@ -9,6 +10,24 @@ namespace ProjectService.Application.Project.Commands;
 
 public record CreateProjectCommand(string Name, string Description, DateTime StartDate, DateTime EndDate, bool IsPublic) : IRequest<ProjectDto>;
 
+public class CreateProjectCommandValidator : AbstractValidator<CreateProjectCommand>
+{
+    public CreateProjectCommandValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Name is required")
+            .MaximumLength(200).WithMessage("Name must not exceed 200 characters");
+
+        RuleFor(x => x.Description)
+            .NotEmpty().WithMessage("Description is required");
+
+        RuleFor(x => x.StartDate)
+            .LessThan(x => x.EndDate).WithMessage("Start date must be before end date");
+
+        RuleFor(x => x.EndDate)
+            .GreaterThan(x => x.StartDate).WithMessage("End date must be after start date");
+    }
+}
 public class CreateProjectCommandHandler(
     IUserContext userContext,
     IUnitOfWork unitOfWork,
@@ -17,10 +36,6 @@ public class CreateProjectCommandHandler(
 {
     public async Task<ProjectDto> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
     {
-        if (request.EndDate <= request.StartDate)
-        {
-            throw new BadRequestException("End date cannot be before start date");
-        }
         bool exists = await projectRepository.ExistsByNameAsync(request.Name,cancellationToken);
         if (exists)
         {

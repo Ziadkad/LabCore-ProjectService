@@ -40,12 +40,6 @@ public class TaskItemConfig : IEntityTypeConfiguration<TaskItem>
                 t => JsonSerializer.Deserialize<List<Guid>>(t, JsonSerializerOptions.Default)
             )
             .Metadata.SetValueComparer(ValueComparerHelper.CreateListComparer<Guid>());
-        builder.Property(s => s.PredecessorTaskIds)
-            .HasConversion(
-                t=> JsonSerializer.Serialize(t, JsonSerializerOptions.Default),
-                t => JsonSerializer.Deserialize<List<Guid>>(t, JsonSerializerOptions.Default)
-            )
-            .Metadata.SetValueComparer(ValueComparerHelper.CreateListComparer<Guid>());
         builder.Property(s => s.StudyId)
             .IsRequired();
 

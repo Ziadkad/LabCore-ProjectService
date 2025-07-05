@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using FluentValidation;
 using ProjectService.Application.Common.Exceptions;
 
 namespace ProjectService.Api.Middlewares;
@@ -24,8 +25,14 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         var code = HttpStatusCode.InternalServerError; // 500 if unexpected
         var message = ex.Message;
         IEnumerable<string> errors = Array.Empty<string>();
-        
-        if (ex.GetType() == typeof(ForbiddenException))
+        if (ex.GetType() == typeof(ValidationException))
+        {
+            var exception = (ValidationException)ex;
+            errors = exception.Errors.Select(e => e.ErrorMessage);
+            message = "Validation failed";
+            code = HttpStatusCode.BadRequest;
+        }
+        else if (ex.GetType() == typeof(ForbiddenException))
         {
             message = ex.Message;
             code = HttpStatusCode.Forbidden;

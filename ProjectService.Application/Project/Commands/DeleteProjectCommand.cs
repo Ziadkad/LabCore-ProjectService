@@ -6,7 +6,7 @@ namespace ProjectService.Application.Project.Commands;
 
 public record DeleteProjectCommand(Guid ProjectId): IRequest;
 
-public class DeleteProjectCommandHandler(IProjectRepository projectRepository, IUnitOfWork unitOfWork) : IRequestHandler<DeleteProjectCommand>
+public class DeleteProjectCommandHandler(IProjectRepository projectRepository, IUnitOfWork unitOfWork, IUserContext userContext) : IRequestHandler<DeleteProjectCommand>
 {
     public async Task Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
     {
@@ -14,6 +14,10 @@ public class DeleteProjectCommandHandler(IProjectRepository projectRepository, I
         if (project is null)
         {
             throw new NotFoundException("Project", request.ProjectId);
+        }
+        if (project.ManagerId != userContext.GetCurrentUserId())
+        {
+            throw new ForbiddenException();
         }
         project.SetArchived();
         var isSaved = await unitOfWork.SaveChangesAsync(cancellationToken);
