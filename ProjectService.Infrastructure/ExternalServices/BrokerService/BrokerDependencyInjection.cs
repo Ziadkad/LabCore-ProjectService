@@ -19,8 +19,13 @@ public static class BrokerDependencyInjection
             var brokerHost = brokerSettings["Host"];
             string addFileQueue = brokerSettings["AddFileEndpoint"];
             string deleteFileQueue = brokerSettings["DeleteFileEndpoint"];
+            string addReservationQueue = brokerSettings["AddReservationEndpoint"];
+            string deleteReservationQueue = brokerSettings["DeleteReservationEndpoint"];
+            
             x.AddConsumer<FileServiceConsumer>();
             x.AddConsumer<DeleteFileConsumer>();
+            x.AddConsumer<AddReservationConsumer>();
+            x.AddConsumer<DeleteReservationConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {
@@ -38,6 +43,16 @@ public static class BrokerDependencyInjection
                 cfg.ReceiveEndpoint(deleteFileQueue, e =>
                 {
                     e.ConfigureConsumer<DeleteFileConsumer>(context);
+                });
+                
+                cfg.ReceiveEndpoint(addReservationQueue, e =>
+                {
+                    e.ConfigureConsumer<AddReservationConsumer>(context);
+                });
+                
+                cfg.ReceiveEndpoint(deleteReservationQueue, e =>
+                {
+                    e.ConfigureConsumer<DeleteReservationConsumer>(context);
                 });
             });
         });

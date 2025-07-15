@@ -13,5 +13,8 @@ public enum UserRole
     Manager,
 
     [EnumMember(Value = "Admin")]
-    Admin
+    Admin,
+    
+    [EnumMember(Value = "ResourceManager")]
+    ResourceManager
 }

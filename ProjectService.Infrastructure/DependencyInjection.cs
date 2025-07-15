@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IStudyResultRepository, StudyResultRepository>();
         
         
+        
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
         
