@@ -86,22 +86,34 @@ public class ProjectRepository(AppDbContext dbContext, IUserContext userContext)
             {
                 query = query.Where(p => p.IsPublic || p.ManagerId == userId);
             }
-            else if (userRole == UserRole.Researcher)
-            {
-                query = query.Where(p => p.IsPublic || p.Researchers.Contains(userId));
-            }
+            
         }
 
         
-        int totalCount = await query.CountAsync(cancellationToken);
+        var queryList = await query.ToListAsync(cancellationToken);
 
-        var projects = await query
-            .Skip((pageQuery.Page - 1) * pageQuery.PageSize)
-            .Take(pageQuery.PageSize)
-            .OrderByDescending(i => i.StartDate)
-            .ToListAsync(cancellationToken);
+        if (researchers != null && researchers.Any())
+        {
+            queryList = queryList
+                .Where(p => p.Researchers != null && p.Researchers.Intersect(researchers).Any())
+                .ToList();
+        }
         
-        return (projects, totalCount);
+        if (connected && userContext.GetUserRole() == UserRole.Researcher)
+        {
+            Guid userId = userContext.GetCurrentUserId();
+            queryList = queryList
+                .Where(p => p.IsPublic || (p.Researchers != null && p.Researchers.Contains(userId)))
+                .ToList();
+        }
+
+        var paged = queryList
+        .OrderByDescending(p => p.StartDate)
+        .Skip((pageQuery.Page - 1) * pageQuery.PageSize)
+        .Take(pageQuery.PageSize)
+        .ToList();
+
+        return (paged, queryList.Count);
     }
 
 

@@ -1,0 +1,107 @@
+﻿@startuml
+
+' ===== BaseModel =====
+class BaseModel {
+  - DateTime CreatedOn
+  - Guid CreatedBy
+  - DateTime? ModifiedOn
+  - Guid? ModifiedBy
+  - bool IsArchived
+
+  + void UpdateAudit(Guid modifiedBy)
+  + void CreateAudit(Guid createdBy)
+  + void SetArchived()
+}
+
+' ===== TaskItem =====
+class TaskItem {
+  - Guid Id
+  - string Label
+  - string Description
+  - List<Guid> AssignedTo
+  - DateTime StartDate
+  - DateTime EndDate
+  - TaskItemStatus TaskItemStatus
+  - List<string> PathsFiles
+  - List<long> Resources
+  - string ReviewNotes
+  - Guid StudyId
+
+  + void AddPathsFile(string path)
+  + void Update(...)
+  + void setStatus(TaskItemStatus status)
+}
+
+' ===== Study =====
+class Study {
+  - Guid Id
+  - string Title
+  - string Objective
+  - string Description
+  - DateTime StartDate
+  - DateTime EndDate
+  - RiskLevel RiskLevel
+  - List<string> PathsFiles
+  - List<long> Resources
+  - Guid ProjectId
+
+  + void AddPathsFile(string path)
+  + void Update(...)
+}
+
+' ===== Project =====
+class Project {
+  - Guid Id
+  - string Name
+  - string Description
+  - DateTime StartDate
+  - DateTime EndDate
+  - ProjectStatus Status
+  - bool IsPublic
+  - float ProgressPercentage
+  - List<string> Tags
+  - List<string> PathsFiles
+  - List<Guid> Researchers
+  - Guid ManagerId
+  - Guid? QAId
+
+  + void AddTags(List<string> tags)
+  + void AddPathsFile(string path)
+  + void AddResearchers(List<Guid> researchers)
+  + void ChangeStatus(ProjectStatus status)
+  + void Update(...)
+  + void UpdateProjectProgressPercentage()
+}
+
+' ===== Enums / Others (as Notes or placeholders) =====
+enum TaskItemStatus {
+  NotStarted
+  InProgress
+  Completed
+}
+
+enum ProjectStatus {
+  Draft
+  InProgress
+  Completed
+}
+
+enum RiskLevel {
+  Low
+  Medium
+  High
+}
+
+
+' ===== Inheritance =====
+TaskItem --|> BaseModel
+Study --|> BaseModel
+Project --|> BaseModel
+
+' ===== Associations =====
+TaskItem --> Study : belongs to
+Study --> Project : belongs to
+Project --> "0..*" Study : has
+Study --> "0..*" TaskItem : has
+
+@enduml
